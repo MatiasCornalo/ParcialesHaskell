@@ -1,4 +1,4 @@
-data Turista = Turista{
+data Turista = Turista {
     cansancio :: Int,
     stress :: Int,
     viajaSolo :: Bool,
@@ -41,3 +41,63 @@ beto = Turista 15 15 True ["Aleman"]
 
 cathi :: Turista
 cathi= Turista 15 15 True ["Aleman","Catalan"]
+
+reducirStress :: Turista -> Excursion -> Turista
+reducirStress unTurista unaExcursion = (cambiarStress (-(div (stress (unaExcursion unTurista)) 10)) . unaExcursion) unTurista
+
+deltaSegun :: (a -> Int) -> a -> a -> Int
+deltaSegun f algo1 algo2 = f algo1 - f algo2
+
+type Indice = (Turista->Int)
+deltaExcursionSegun :: Indice -> Turista -> Excursion -> Int
+deltaExcursionSegun unIndice unTurista unaExcursion = unIndice (unaExcursion unTurista) - unIndice unTurista 
+
+esEducativa :: Turista -> Excursion -> Bool
+esEducativa unTurista unaExcursion = deltaExcursionSegun numIdiomas unTurista unaExcursion > 0
+
+numIdiomas :: Turista -> Int
+numIdiomas unTurista = length (idiomas unTurista)
+
+excursionesDesestresantes :: Turista -> [Excursion] -> [Excursion]
+excursionesDesestresantes unTurista  = filter ((>3) . deltaExcursionSegun stress unTurista) 
+
+type Tour = [Excursion]
+completo :: Tour    
+completo  = [salirHablarIdioma "melmacquiano",  apreciarPaisaje "Cascada",caminar 20]
+
+ladoB :: Excursion -> Tour
+ladoB excursion = [caminar 120 , excursion , paseoEnBarco Tranquila]
+
+islaVecina :: Marea -> Tour
+islaVecina unaMarea
+    | unaMarea == Fuerte = [paseoEnBarco unaMarea , apreciarPaisaje "Lago" , paseoEnBarco unaMarea]
+    | otherwise          = [paseoEnBarco unaMarea, irAPlaya, paseoEnBarco unaMarea]
+
+hacerUnTour :: Turista -> Tour -> Turista
+hacerUnTour unTurista unTour =  foldl (flip ($)) (cambiarStress (length unTour) unTurista) unTour
+
+toursConvincentes :: Tour -> Turista -> Tour
+toursConvincentes unTour unTurista  = filter (not . teDejaSolo unTurista) (excursionesDesestresantes unTurista unTour)
+
+esConvincente :: Tour -> Turista -> Bool
+esConvincente unTour unTurista = any (not . teDejaSolo unTurista) . excursionesDesestresantes unTurista  $ unTour
+
+
+teDejaSolo :: Turista -> Excursion -> Bool
+teDejaSolo unTurista unaExcursion = viajaSolo (unaExcursion unTurista) 
+
+efectividad :: Tour -> [Turista] -> Int
+efectividad tour = sum . map (espiritualidadAportada tour) . filter (esConvincente tour)
+
+espiritualidadAportada :: Tour -> Turista -> Int
+espiritualidadAportada tour = negate . deltaRutina tour
+
+deltaRutina :: Tour -> Turista -> Int
+deltaRutina tour turista = deltaSegun nivelDeCansancioEstres (hacerUnTour turista tour) turista  
+
+nivelDeCansancioEstres :: Turista -> Int
+nivelDeCansancioEstres unTurista = cansancio unTurista + stress unTurista
+
+-- ghci> replicate (1/0) irAPlaya
+-- Para ana es convincente porque viaja acompañada siempre, pero para beto y cathi no
+-- en Haskell es imposible saber porque tiene "Lazy evaluation" y no va a ejecutar la funcion hasta que realmente lo necesite
