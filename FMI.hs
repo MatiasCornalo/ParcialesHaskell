@@ -1,3 +1,4 @@
+import Graphics.Win32 (unloadKeyboardLayout)
 data Pais = Pais{
     ingresoPerCapita :: Float,
     poblacionPublica :: Float,
@@ -52,9 +53,9 @@ totalDeuda :: [Pais] -> Float
 totalDeuda = sum . map deuda -- Composicion y orden superior 
 
 -- 5 en proceso
--- esMayor :: Pais -> [Estrategia] -> Bool
--- esMayor unPais [] = True
--- esMayor unPais (x:xs) = (pbi . x) unPais &&  esMayor unPais xs
+estaOrdenado :: Pais -> [Estrategia] -> Bool 
+estaOrdenado unPais [] = True    
+estaOrdenado unPais (estrategia1:estrategia2:estrategias) = (pbi . estrategia1) unPais <= (pbi . estrategia2) unPais && estaOrdenado unPais (estrategia2:estrategias)
 
 --6
 recursosNaturalesInfinitos :: [String]
