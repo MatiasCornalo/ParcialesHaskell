@@ -47,16 +47,13 @@ ganarReconocimiento :: Int -> Heroe -> Heroe
 ganarReconocimiento num unHeroe = unHeroe {reconocimiento = reconocimiento unHeroe + num}
 
 escalarElOlimpo :: Tarea
-escalarElOlimpo unHeroe = (darArtefacto relampagoDeZeus . desecharLosComunes . triplicarRareza .  ganarReconocimiento 500) unHeroe
+escalarElOlimpo unHeroe = (darArtefacto relampagoDeZeus . desecharLosComunesTriplicados .  ganarReconocimiento 500) unHeroe
 
 relampagoDeZeus :: Artefacto
 relampagoDeZeus = Artefacto "Relampago De Zeus" 500
 
-triplicarRareza :: Heroe -> Heroe
-triplicarRareza unHeroe = undefined --  unHeroe {artefactos = map ((*3) . rareza ) (artefactos unHeroe)}
-
-desecharLosComunes :: Heroe -> Heroe
-desecharLosComunes unHeroe = unHeroe {artefactos = filter ((>1000) . rareza) (artefactos unHeroe)}
+desecharLosComunesTriplicados :: Heroe -> Heroe
+desecharLosComunesTriplicados unHeroe = unHeroe {artefactos = filter ((>1000) . (*3) . rareza) (artefactos unHeroe)}
 
 ayudarACruzarLaCalle :: Int -> Tarea
 ayudarACruzarLaCalle cuadras unHeroe = cambiarEpiteto ("gros" ++ (agregarO cuadras)) unHeroe
@@ -102,4 +99,10 @@ sumRarezaArtefactos  = sum . map rareza . artefactos
 
 realizarTareasDelOtro :: Heroe -> Heroe -> Heroe
 realizarTareasDelOtro heroe1 heroe2 = foldl (flip ($)) heroe1 (tareas heroe2)
+
+type Labor = [Tarea]
+hacerLabor :: Labor -> Heroe -> Heroe
+hacerLabor labores heroe = foldl (flip ($)) heroe labores 
+
+-- NO se va a poder saber el estado final del heroe porque el mismo va a estar realizando tareas constantemente sin terminar
 
