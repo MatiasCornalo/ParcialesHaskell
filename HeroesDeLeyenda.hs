@@ -12,10 +12,8 @@ data Artefacto = Artefacto{
 
 data Bestia = Bestia{
     nombreBestia :: String,
-    debilidad :: (Artefacto, Int)
+    debilidad :: (Heroe->Bool)
 }
-
-
 
 paseAlaHistoria :: Heroe -> Heroe
 paseAlaHistoria unHeroe
@@ -63,8 +61,11 @@ agregarO cuadras = concat (replicate cuadras "o")
 
 matarBestia :: Bestia -> Tarea
 matarBestia unaBestia unHeroe
-    | elem (fst (debilidad unaBestia)) (artefactos unHeroe) || snd (debilidad unaBestia) < reconocimiento unHeroe  = cambiarEpiteto ("El asesino de " ++ nombreBestia unaBestia) unHeroe
+    | puedeMatar unHeroe unaBestia = cambiarEpiteto ("El asesino de " ++ nombreBestia unaBestia) unHeroe
     | otherwise = (perderArtefacto . cambiarEpiteto "El cobarde") unHeroe
+
+puedeMatar :: Heroe -> Bestia -> Bool
+puedeMatar unHeroe unaBestia = debilidad unaBestia unHeroe
 
 perderArtefacto :: Heroe -> Heroe
 perderArtefacto unHeroe = unHeroe {artefactos = drop 1 (artefactos unHeroe)} 
@@ -76,7 +77,10 @@ pistola :: Artefacto
 pistola = Artefacto "Pistola" 1000
 
 leonDeNemea :: Bestia
-leonDeNemea = "Leon de Nemea" -- nose que poner aca
+leonDeNemea = Bestia "Leon de Nemea" longitudEpiteto20
+
+longitudEpiteto20 :: Heroe->Bool
+longitudEpiteto20 unHeroe = ((>20) . length . epiteto) unHeroe
 
 hacerTarea :: Heroe -> Tarea -> Heroe
 hacerTarea unHeroe unaTarea = (unaTarea unHeroe) {tareas = unaTarea : tareas unHeroe}
@@ -88,6 +92,9 @@ presumir heroe1 heroe2
     | sumRarezaArtefactos heroe1 > sumRarezaArtefactos heroe2 = ganaPrimero heroe1 heroe2
     | sumRarezaArtefactos heroe2 < sumRarezaArtefactos heroe1 = ganaPrimero heroe2 heroe1
     | otherwise = presumir (realizarTareasDelOtro heroe1 heroe2) (realizarTareasDelOtro heroe2 heroe1)
+
+-- Si los heroes tienen el mismo reconocimiento y no hicieron tareas, ambos van a estar presumiendo entre si hasta el infinito 
+
 tieneMayorReconocimiento :: Heroe -> Heroe -> Bool
 tieneMayorReconocimiento heroe1 heroe2 = reconocimiento heroe2 > reconocimiento heroe2
 
@@ -106,3 +113,4 @@ hacerLabor labores heroe = foldl (flip ($)) heroe labores
 
 -- NO se va a poder saber el estado final del heroe porque el mismo va a estar realizando tareas constantemente sin terminar
 
+hacerLaborInfinita = escalarElOlimpo : hacerLaborInfinita
