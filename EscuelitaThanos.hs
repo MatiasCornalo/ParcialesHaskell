@@ -76,11 +76,13 @@ guanteleteTrucho = Guantelete "Goma" [elTiempo,elAlma "Usar Mjolnir",laGemaLoca 
 utilizar :: Personaje -> [Gema] -> Personaje
 utilizar unPersonaje gemasNuevas = foldl (flip ($)) unPersonaje gemasNuevas
 
---gemaMasPoderosa :: Guantelete -> Personaje -> Gema
---gemaMasPoderosa unGuantelete unPersonaje = max (energiaPerdida unPersonaje ((head . gemas) unGuantelete)) (gemaMasPoderosa (unGuantelete{gemas = drop 1 (gemas unGuantelete)}) unPersonaje) 
+gemaMasPoderosa :: [Gema] -> Personaje -> Gema
+gemaMasPoderosa (gema1:gemas) unPersonaje = maxPerdidaEntreGemas gema1 (gemaMasPoderosa gemas unPersonaje) unPersonaje
 
-energiaPerdida :: Personaje -> Gema -> Int
-energiaPerdida unPersonaje unaGema = abs (energia unPersonaje - (energia . unaGema) unPersonaje) 
+maxPerdidaEntreGemas :: Gema -> Gema -> Personaje -> Gema
+maxPerdidaEntreGemas gema1 gema2 unPersonaje
+    | energia (gema1 unPersonaje) >= energia (gema2 unPersonaje)  = gema2
+    | not (energia (gema1 unPersonaje) >= energia (gema2 unPersonaje)) = gema1
 
 infinitasGemas :: Gema -> [Gema]
 infinitasGemas gema = gema:(infinitasGemas gema)
