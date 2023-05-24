@@ -33,3 +33,40 @@ esAptoParaPendex = any (<45) . map edad
 
 energiaTotal :: Universo -> Int
 energiaTotal = sum . map energia 
+
+-- Segunda parte
+laMente :: Int -> Gema
+laMente numero unPersonaje = sacarEnergia numero unPersonaje
+
+sacarEnergia :: Int -> Personaje -> Personaje
+sacarEnergia numero unPersonaje = unPersonaje {energia = energia unPersonaje - numero}
+
+elAlma :: String -> Gema
+elAlma habilidad = sacarEnergia 10 . sacarHabilidad habilidad  
+
+sacarHabilidad :: String -> Personaje -> Personaje
+sacarHabilidad habilidad unPersonaje = unPersonaje {habilidades = filter (/= habilidad) (habilidades unPersonaje)}
+
+elEspacio :: String -> Gema
+elEspacio planeta = enviarAlplaneta planeta . sacarEnergia 10
+
+enviarAlplaneta :: String -> Personaje -> Personaje
+enviarAlplaneta planetaNuevo unPersonaje = unPersonaje {planeta = planetaNuevo}
+
+elPoder :: Gema
+elPoder unPersonaje
+    | tienePocasHabilidades unPersonaje         = (sacarEnergia (energia unPersonaje) . vaciarHabilidades) unPersonaje
+    | not (tienePocasHabilidades unPersonaje)   = sacarEnergia (energia unPersonaje) unPersonaje
+
+vaciarHabilidades :: Personaje -> Personaje
+vaciarHabilidades unPersonaje = unPersonaje {habilidades = []}
+
+tienePocasHabilidades :: Personaje -> Bool
+tienePocasHabilidades  = (<=2) . length . habilidades
+
+elTiempo :: Gema
+elTiempo unPersonaje = unPersonaje {edad = max (div (edad unPersonaje) 2) 18}
+
+laGemaLoca :: Gema -> Gema
+laGemaLoca unaGema unPersonaje = unaGema unPersonaje
+
